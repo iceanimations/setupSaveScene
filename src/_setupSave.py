@@ -4,7 +4,7 @@ Created on Feb 10, 2015
 @author: qurban.ali
 '''
 import pymel.core as pc
-import RedshiftAOVTools
+from loader.command.python import RedshiftAOVTools
 import fillinout
 import re
 
