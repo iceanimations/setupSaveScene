@@ -47,7 +47,7 @@ def setResolution():
     
 def camExists(match):
     for cam in pc.ls(cameras=True):
-        if match in cam.name():
+        if match in cam.firstParent().name():
             return cam
     return False
 
