@@ -95,6 +95,8 @@ def setupScene():
     
     setResolution()
     
+    pc.inViewMessage(amg='<hl>Scene setup successful</hl>', pos='midCenter', fade=True )
+    
     
 
 def saveScene():
