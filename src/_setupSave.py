@@ -6,6 +6,7 @@ Created on Feb 10, 2015
 import pymel.core as pc
 from loader.command.python import RedshiftAOVTools
 import fillinout
+reload(fillinout)
 import re
 
 __title__ = 'Setup & Save Scene'
@@ -44,6 +45,8 @@ def setResolution():
     node = pc.ls('defaultResolution')[0]
     node.width.set(1920)
     node.height.set(1080)
+    pc.setAttr("defaultResolution.deviceAspectRatio", 1.777)
+    pc.mel.redshiftUpdateResolution()
     
 def camExists(match):
     for cam in pc.ls(cameras=True):
@@ -52,6 +55,8 @@ def camExists(match):
     return False
 
 def setupScene():
+    if pc.mel.currentRenderer().lower() != 'redshift':
+        pc.mel.setCurrentRenderer('redshift')
     ep = getMatch(__ep_regex__)
     seq = getMatch(__seq_regex__)
     sh = getMatch(__sh_regex__)
