@@ -3,10 +3,10 @@ Created on Feb 10, 2015
 
 @author: qurban.ali
 '''
-import pymel.core as pc
 from loader.command.python import RedshiftAOVTools
+import pymel.core as pc
+import appUsageApp
 import fillinout
-reload(fillinout)
 import re
 
 __title__ = 'Setup & Save Scene'
@@ -96,6 +96,8 @@ def setupScene():
     setResolution()
     
     pc.inViewMessage(amg='<hl>Scene setup successful</hl>', pos='midCenter', fade=True )
+    
+    appUsageApp.updateDatabase('setupSaveScene')
     
     
 
