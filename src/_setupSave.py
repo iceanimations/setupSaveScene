@@ -66,26 +66,31 @@ def fileExists(path, fileName):
     
 def saveScene(path, fileName):
     if fileExists(path, fileName):
-        versions = []
-        for version in os.listdir(path):
-            try:
-                versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
-            except AttributeError:
-                pass
-        if not versions:
-            fileName += '_v001'
-        else:
-            fileName = fileName +'_v'+ str(max(versions)+1).zfill(3)
+#        versions = []
+#        for version in os.listdir(path):
+#            try:
+#                versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
+#            except AttributeError:
+#                pass
+#        if not versions:
+#            fileName += '_v001'
+#        else:
+#            fileName = fileName +'_v'+ str(max(versions)+1).zfill(3)
         btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
-                                 msg='File already exists, your file will be saved as %s'%fileName,
-                                 ques='Do you want to proceed?',
+                                 msg='File already exists, with the name %s'%fileName,
+                                 ques='Do you want to OVERWRITE existing file?',
                                  icon=QMessageBox.Question,
                                  btns=QMessageBox.Yes|QMessageBox.No)
         if btn == QMessageBox.No:
             return
+        for phile in os.listdir(path):
+            if osp.splitext(phile)[0] == fileName:
+                os.remove(osp.join(path, phile))
     fullPath = osp.join(path, fileName)
+    typ = cmds.file(q=True, type=True)[0]
+    fullPath += '.mb' if typ == 'mayaBinary' else '.ma'
     cmds.file(rename=fullPath)
-    cmds.file(f=True, save=True, options="v=0;", type=cmds.file(q=True, type=True)[0])
+    cmds.file(f=True, save=True, options="v=0;", type=typ)
 
 
 def setupScene():
@@ -137,13 +142,14 @@ def setupScene():
                            msg='Unable to save the file because the system could not find the constructed path\n'+path,
                            icon=QMessageBox.Information)
         return
+    fileName = '_'.join([ep, seq, sh])
     btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
                              msg='Your scene will be save at\n'+
-                             path, icon=QMessageBox.Question,
-                             ques='Is this location correct?',
+                             path +' as %s'%fileName, icon=QMessageBox.Question,
+                             ques='Do you want to proceed?',
                              btns=QMessageBox.Yes|QMessageBox.No)
     if btn == QMessageBox.No:
         return
-    saveScene(path, '_'.join([ep, seq, sh]))
+    saveScene(path, fileName)
         
     appUsageApp.updateDatabase('setupSaveScene')
