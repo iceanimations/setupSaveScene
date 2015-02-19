@@ -8,10 +8,11 @@ import pymel.core as pc
 import os.path as osp
 import os
 import uiContainer
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QPushButton
 import appUsageApp
 import fillinout
 import msgBox
+reload(msgBox)
 import qtify_maya_window as qtfy
 import re
 import maya.cmds as cmds
@@ -66,26 +67,35 @@ def fileExists(path, fileName):
     
 def saveScene(path, fileName):
     if fileExists(path, fileName):
-#        versions = []
-#        for version in os.listdir(path):
-#            try:
-#                versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
-#            except AttributeError:
-#                pass
-#        if not versions:
-#            fileName += '_v001'
-#        else:
-#            fileName = fileName +'_v'+ str(max(versions)+1).zfill(3)
+        versionButton = QPushButton('Create Version')
+        overwriteButton = QPushButton('Overwrite Existing')
         btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
                                  msg='File already exists, with the name %s'%fileName,
-                                 ques='Do you want to OVERWRITE existing file?',
+                                 ques='What do you wnat to do?',
                                  icon=QMessageBox.Question,
-                                 btns=QMessageBox.Yes|QMessageBox.No)
-        if btn == QMessageBox.No:
+                                 btns=QMessageBox.Cancel,
+                                 customButtons=[overwriteButton, versionButton])
+        if btn == versionButton:
+            versions = []
+            for version in os.listdir(path):
+                try:
+                    versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
+                except AttributeError:
+                    pass
+            if not versions:
+                fileName += '_v001'
+            else:
+                fileName = fileName +'_v'+ str(max(versions)+1).zfill(3)
+        elif btn == overwriteButton:
+            for phile in os.listdir(path):
+                if osp.splitext(phile)[0] == fileName:
+                    try:
+                        os.remove(osp.join(path, phile))
+                    except Exception as ex:
+                        showMessage(str(ex))
+                        return
+        else:
             return
-        for phile in os.listdir(path):
-            if osp.splitext(phile)[0] == fileName:
-                os.remove(osp.join(path, phile))
     fullPath = osp.join(path, fileName)
     typ = cmds.file(q=True, type=True)[0]
     fullPath += '.mb' if typ == 'mayaBinary' else '.ma'
