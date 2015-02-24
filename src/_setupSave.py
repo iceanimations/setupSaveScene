@@ -63,39 +63,50 @@ def camExists(match):
     return False
 
 def fileExists(path, fileName):
-    return fileName in [osp.splitext(name)[0] for name in os.listdir(path)]
-    
+    for name in os.listdir(path):
+        try:
+            return re.search(fileName+'_v\d{3}', name)
+        except:
+            pass
+
+def getLastVersion(path, fileName, next=False):
+    versions = []
+    for version in os.listdir(path):
+        try:
+            versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
+        except AttributeError:
+            pass
+    if versions:
+        temp = max(versions) + 1 if next else max(versions)
+        return fileName +'_v'+ str(temp).zfill(3)
+        
 def saveScene(path, fileName):
     if fileExists(path, fileName):
         versionButton = QPushButton('Create Version')
+        versionButton.setToolTip('Create a new version')
         overwriteButton = QPushButton('Overwrite Existing')
+        overwriteButton.setToolTip('Overwrite the last version')
         btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
-                                 msg='File already exists, with the name %s'%fileName,
+                                 msg='File already exists for this shot',
                                  ques='What do you wnat to do?',
                                  icon=QMessageBox.Question,
                                  btns=QMessageBox.Cancel,
                                  customButtons=[overwriteButton, versionButton])
         if btn == versionButton:
-            versions = []
-            for version in os.listdir(path):
-                try:
-                    versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
-                except AttributeError:
-                    pass
-            if not versions:
-                fileName += '_v001'
-            else:
-                fileName = fileName +'_v'+ str(max(versions)+1).zfill(3)
+            fileName = getLastVersion(path, fileName, next=True)
         elif btn == overwriteButton:
+            fileName = getLastVersion(path, fileName)
             for phile in os.listdir(path):
                 if osp.splitext(phile)[0] == fileName:
                     try:
                         os.remove(osp.join(path, phile))
                     except Exception as ex:
-                        showMessage(str(ex))
+                        showMessage('Could not overwrite the existing file\n'+str(ex))
                         return
         else:
             return
+    else:
+        fileName += '_v001'
     fullPath = osp.join(path, fileName)
     typ = cmds.file(q=True, type=True)[0]
     fullPath += '.mb' if typ == 'mayaBinary' else '.ma'
@@ -154,8 +165,8 @@ def setupScene():
         return
     fileName = '_'.join([ep, seq, sh])
     btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
-                             msg='Your scene will be save at\n'+
-                             path +' as %s'%fileName, icon=QMessageBox.Question,
+                             msg='Your scene will be saved at\n'+path,
+                             icon=QMessageBox.Question,
                              ques='Do you want to proceed?',
                              btns=QMessageBox.Yes|QMessageBox.No)
     if btn == QMessageBox.No:
