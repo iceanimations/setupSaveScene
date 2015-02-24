@@ -82,8 +82,6 @@ def getLastVersion(path, fileName, next=False):
         return fileName +'_v'+ str(temp).zfill(3)
         
 def saveScene(path, fileName):
-    fileExists(path, fileName)
-    return
     if fileExists(path, fileName):
         versionButton = QPushButton('Create Version')
         versionButton.setToolTip('Create a new version')
