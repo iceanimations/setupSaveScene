@@ -65,7 +65,8 @@ def camExists(match):
 def fileExists(path, fileName):
     for name in os.listdir(path):
         try:
-            return re.search(fileName+'_v\d{3}', name)
+            if re.search(fileName+'_v\d{3}', name):
+                return True
         except:
             pass
 
@@ -81,6 +82,8 @@ def getLastVersion(path, fileName, next=False):
         return fileName +'_v'+ str(temp).zfill(3)
         
 def saveScene(path, fileName):
+    fileExists(path, fileName)
+    return
     if fileExists(path, fileName):
         versionButton = QPushButton('Create Version')
         versionButton.setToolTip('Create a new version')
