@@ -70,7 +70,7 @@ def fileExists(path, fileName):
         except:
             pass
 
-def getLastVersion(path, fileName, next=False):
+def getLastVersion(path, fileName, nxt=False):
     versions = []
     for version in os.listdir(path):
         try:
@@ -78,7 +78,7 @@ def getLastVersion(path, fileName, next=False):
         except AttributeError:
             pass
     if versions:
-        temp = max(versions) + 1 if next else max(versions)
+        temp = max(versions) + 1 if nxt else max(versions)
         return fileName +'_v'+ str(temp).zfill(3)
         
 def saveScene(path, fileName):
