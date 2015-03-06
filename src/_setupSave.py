@@ -12,6 +12,7 @@ from PyQt4.QtGui import QMessageBox, QPushButton
 import appUsageApp
 import fillinout
 import msgBox
+import qutil
 reload(msgBox)
 import qtify_maya_window as qtfy
 import re
@@ -61,28 +62,9 @@ def camExists(match):
         if match in cam.firstParent().name():
             return cam
     return False
-
-def fileExists(path, fileName):
-    for name in os.listdir(path):
-        try:
-            if re.search(fileName+'_v\d{3}', name):
-                return True
-        except:
-            pass
-
-def getLastVersion(path, fileName, nxt=False):
-    versions = []
-    for version in os.listdir(path):
-        try:
-            versions.append(int(re.search('_v\d{3}', version).group().split('v')[-1]))
-        except AttributeError:
-            pass
-    if versions:
-        temp = max(versions) + 1 if nxt else max(versions)
-        return fileName +'_v'+ str(temp).zfill(3)
         
 def saveScene(path, fileName):
-    if fileExists(path, fileName):
+    if qutil.fileExists(path, fileName):
         versionButton = QPushButton('Create Version')
         versionButton.setToolTip('Create a new version')
         overwriteButton = QPushButton('Overwrite Existing')
@@ -94,9 +76,9 @@ def saveScene(path, fileName):
                                  btns=QMessageBox.Cancel,
                                  customButtons=[overwriteButton, versionButton])
         if btn == versionButton:
-            fileName = getLastVersion(path, fileName, next=True)
+            fileName = qutil.getLastVersion(path, fileName, next=True)
         elif btn == overwriteButton:
-            fileName = getLastVersion(path, fileName)
+            fileName = qutil.getLastVersion(path, fileName)
             for phile in os.listdir(path):
                 if osp.splitext(phile)[0] == fileName:
                     try:
