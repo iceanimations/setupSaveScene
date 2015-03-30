@@ -43,13 +43,6 @@ def getMatch(regex):
             val = match.group()
     return val
 
-def setRenderableCamera(camera):
-    for cam in pc.ls(cameras=True):
-        if cam.renderable.get():
-            cam.renderable.set(False)
-    camera.renderable.set(True)
-            
-
 def setResolution():
     node = pc.ls('defaultResolution')[0]
     node.width.set(1920)
@@ -119,7 +112,7 @@ def setupScene():
     if not cam:
         showMessage('Could not find a camera containing %s'%camPrefix)
     else:
-        setRenderableCamera(cam)
+        qutil.setRenderableCamera(cam)
         pc.setAttr("defaultRenderGlobals.animation", 1)
         pc.select(cam)
         try:
@@ -154,6 +147,6 @@ def setupScene():
                              btns=QMessageBox.Yes|QMessageBox.No)
     if btn == QMessageBox.No:
         return
-    saveScene(path, fileName)
+    #saveScene(path, fileName)
         
     appUsageApp.updateDatabase('setupSaveScene')
