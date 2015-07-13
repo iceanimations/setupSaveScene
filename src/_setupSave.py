@@ -11,6 +11,7 @@ import uiContainer
 from PyQt4.QtGui import QMessageBox, QPushButton
 import appUsageApp
 import fillinout
+reload(fillinout)
 import msgBox
 import qutil
 reload(msgBox)
@@ -48,7 +49,7 @@ def setResolution():
     node.width.set(1920)
     node.height.set(1080)
     pc.setAttr("defaultResolution.deviceAspectRatio", 1.777)
-    pc.mel.redshiftUpdateResolution()
+    #pc.mel.redshiftUpdateResolution()
     
 def camExists(match):
     for cam in pc.ls(cameras=True):
@@ -90,37 +91,44 @@ def saveScene(path, fileName):
     cmds.file(f=True, save=True, options="v=0;", type=typ)
 
 
-def setupScene():
+def setupScene(msg=True, cam=None):
+    errors = []
     if pc.mel.currentRenderer().lower() != 'redshift':
         pc.mel.setCurrentRenderer('redshift')
-    ep = getMatch(__ep_regex__)
-    seq = getMatch(__seq_regex__)
-    sh = getMatch(__sh_regex__)
-    
-    if not ep:
-        showMessage('Could not find Episode number form the scene')
-        return
-    if not seq:
-        showMessage('Could not find Sequence number from the scene')
-        return
-    if not sh:
-        showMessage('Could not find Shot number from the scene')
-        return
-    
-    camPrefix = '_'.join([seq, sh])
-    cam = camExists(camPrefix)
-    if not cam:
+    if not cam and msg:
+        ep = getMatch(__ep_regex__)
+        seq = getMatch(__seq_regex__)
+        sh = getMatch(__sh_regex__)
+        if not ep:
+            showMessage('Could not find Episode number form the scene')
+            return
+        if not seq:
+            showMessage('Could not find Sequence number from the scene')
+            return
+        if not sh:
+            showMessage('Could not find Shot number from the scene')
+            return
+        camPrefix = '_'.join([seq, sh])
+        cam = camExists(camPrefix)
         showMessage('Could not find a camera containing %s'%camPrefix)
-    else:
-        qutil.setRenderableCamera(cam)
-        pc.setAttr("defaultRenderGlobals.animation", 1)
-        pc.select(cam)
-        try:
-            start, end = fillinout.fill()
-            pc.setAttr("defaultRenderGlobals.extensionPadding", len(str(int(max([start, end])))))
-        except:
-            showMessage('Could not find keyframes on selected camera')
-        pc.select(cl=True)
+        if not msg:
+            errors.append('Could not find a camera containing %s'%camPrefix)
+    qutil.setRenderableCamera(cam)
+    pc.setAttr("defaultRenderGlobals.animation", 1)
+    if type(cam) != pc.nt.Transform:
+        cam = cam.firstParent()
+    pc.select(cam)
+    print pc.ls(sl=True)
+    #try:
+    start, end = fillinout.fill()
+    pc.lookThru(cam)
+    pc.setAttr("defaultRenderGlobals.extensionPadding", len(str(int(max([start, end])))))
+    #except Exception as ex:
+    #if msg:
+    #    showMessage('Could not find keyframes on selected camera\n'+ str(ex))
+    #else:
+    #    errors.append('Could not find keyframes on selected camera\n'+ str(ex))
+    pc.select(cl=True)
     
     # set image format to openEXR
     pc.setAttr("redshiftOptions.imageFormat", 1)
@@ -133,20 +141,21 @@ def setupScene():
     
     pc.inViewMessage(amg='<hl>Scene setup successful</hl>', pos='midCenter', fade=True )
     #path = osp.join(r'D:\shot_test', ep, 'SEQUENCES', seq, 'SHOTS', '_'.join([seq, sh]), 'lighting', 'files')
-    path = osp.join(r'P:\external\Al_Mansour_Season_02\02_production', ep, 'SEQUENCES', seq, 'SHOTS', '_'.join([seq, sh]), 'lighting', 'file')
-    if not osp.exists(path):
-        msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
-                           msg='Unable to save the file because the system could not find the constructed path\n'+path,
-                           icon=QMessageBox.Information)
-        return
-    fileName = '_'.join([ep, seq, sh])
-    btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
-                             msg='Your scene will be saved at\n'+path,
-                             icon=QMessageBox.Question,
-                             ques='Do you want to proceed?',
-                             btns=QMessageBox.Yes|QMessageBox.No)
-    if btn == QMessageBox.No:
-        return
+    #path = osp.join(r'P:\external\Al_Mansour_Season_02\02_production', ep, 'SEQUENCES', seq, 'SHOTS', '_'.join([seq, sh]), 'lighting', 'file')
+#     if not osp.exists(path):
+#         msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
+#                            msg='Unable to save the file because the system could not find the constructed path\n'+path,
+#                            icon=QMessageBox.Information)
+#         return
+#     fileName = '_'.join([ep, seq, sh])
+#     btn = msgBox.showMessage(qtfy.getMayaWindow(), title=__title__,
+#                              msg='Your scene will be saved at\n'+path,
+#                              icon=QMessageBox.Question,
+#                              ques='Do you want to proceed?',
+#                              btns=QMessageBox.Yes|QMessageBox.No)
+#     if btn == QMessageBox.No:
+#         return
     #saveScene(path, fileName)
         
     appUsageApp.updateDatabase('setupSaveScene')
+    return errors
