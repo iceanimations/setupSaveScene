@@ -138,8 +138,8 @@ def setupScene(msg=True, cam=None):
     RedshiftAOVTools.fixAOVPrefixes()
     
     setResolution()
-    
-    pc.inViewMessage(amg='<hl>Scene setup successful</hl>', pos='midCenter', fade=True )
+    if not cam and msg:
+        pc.inViewMessage(amg='<hl>Scene setup successful</hl>', pos='midCenter', fade=True )
     #path = osp.join(r'D:\shot_test', ep, 'SEQUENCES', seq, 'SHOTS', '_'.join([seq, sh]), 'lighting', 'files')
     #path = osp.join(r'P:\external\Al_Mansour_Season_02\02_production', ep, 'SEQUENCES', seq, 'SHOTS', '_'.join([seq, sh]), 'lighting', 'file')
 #     if not osp.exists(path):
