@@ -118,7 +118,6 @@ def setupScene(msg=True, cam=None):
     if type(cam) != pc.nt.Transform:
         cam = cam.firstParent()
     pc.select(cam)
-    print pc.ls(sl=True)
     #try:
     start, end = fillinout.fill()
     pc.lookThru(cam)
