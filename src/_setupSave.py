@@ -118,8 +118,12 @@ def setupScene(msg=True, cam=None):
     if type(cam) != pc.nt.Transform:
         cam = cam.firstParent()
     pc.select(cam)
-    #try:
-    start, end = fillinout.fill()
+    start = 0
+    end = 1
+    try:
+        start, end = fillinout.fill()
+    except:
+        pc.warning('Could not find start and end frames for %s'%cam.name())
     pc.lookThru(cam)
     pc.setAttr("defaultRenderGlobals.extensionPadding", len(str(int(max([start, end])))))
     #except Exception as ex:
