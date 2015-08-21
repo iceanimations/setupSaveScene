@@ -44,10 +44,10 @@ def getMatch(regex):
             val = match.group()
     return val
 
-def setResolution():
+def setResolution(resolution):
     node = pc.ls('defaultResolution')[0]
-    node.width.set(1920)
-    node.height.set(1080)
+    node.width.set(resolution[0])
+    node.height.set(resolution[1])
     pc.setAttr("defaultResolution.deviceAspectRatio", 1.777)
     #pc.mel.redshiftUpdateResolution()
     
@@ -91,7 +91,7 @@ def saveScene(path, fileName):
     cmds.file(f=True, save=True, options="v=0;", type=typ)
 
 
-def setupScene(msg=True, cam=None):
+def setupScene(msg=True, cam=None, resolution=None):
     errors = []
     if pc.mel.currentRenderer().lower() != 'redshift':
         pc.mel.setCurrentRenderer('redshift')
@@ -113,6 +113,7 @@ def setupScene(msg=True, cam=None):
         showMessage('Could not find a camera containing %s'%camPrefix)
         if not msg:
             errors.append('Could not find a camera containing %s'%camPrefix)
+    if not resolution: resolution = [1920, 1080]
     qutil.setRenderableCamera(cam)
     pc.setAttr("defaultRenderGlobals.animation", 1)
     if type(cam) != pc.nt.Transform:
@@ -140,7 +141,7 @@ def setupScene(msg=True, cam=None):
     
     RedshiftAOVTools.fixAOVPrefixes()
     
-    setResolution()
+    setResolution(resolution)
     if not cam and msg:
         pc.inViewMessage(amg='<hl>Scene setup successful</hl>', pos='midCenter', fade=True )
     #path = osp.join(r'D:\shot_test', ep, 'SEQUENCES', seq, 'SHOTS', '_'.join([seq, sh]), 'lighting', 'files')
