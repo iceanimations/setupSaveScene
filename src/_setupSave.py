@@ -136,7 +136,7 @@ def setupScene(msg=True, cam=None, resolution=None):
     
     # set image format to openEXR
     pc.setAttr("redshiftOptions.imageFormat", 1)
-    
+    pc.setAttr("redshiftOptions.exrCompression", 3)
     pc.setAttr("redshiftOptions.imageFilePrefix", "<Camera>/<RenderLayer>/<RenderLayer>_<AOV>/<RenderLayer>_<AOV>_", type="string")
     
     RedshiftAOVTools.fixAOVPrefixes()
