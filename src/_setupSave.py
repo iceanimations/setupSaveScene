@@ -4,6 +4,7 @@ Created on Feb 10, 2015
 @author: qurban.ali
 '''
 from loader.command.python import RedshiftAOVTools
+reload(RedshiftAOVTools)
 import pymel.core as pc
 import os.path as osp
 import os
@@ -125,6 +126,7 @@ def setupScene(msg=True, cam=None, resolution=None):
         start, end = fillinout.fill()
     except:
         pc.warning('Could not find start and end frames for %s'%cam.name())
+    pc.setAttr("defaultRenderGlobals.byFrameStep", 1)
     pc.lookThru(cam)
     pc.setAttr("defaultRenderGlobals.extensionPadding", len(str(int(max([start, end])))))
     #except Exception as ex:
