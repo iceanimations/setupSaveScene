@@ -13,6 +13,8 @@ from PyQt4.QtGui import QMessageBox, QPushButton
 import appUsageApp
 import fillinout
 reload(fillinout)
+import fillinoutRO
+reload(fillinoutRO)
 import msgBox
 import qutil
 reload(msgBox)
@@ -92,7 +94,10 @@ def saveScene(path, fileName):
     cmds.file(f=True, save=True, options="v=0;", type=typ)
 
 
-def setupScene(msg=True, cam=None, resolution=None):
+def setupScene(msg=True, cam=None, resolution=None, ro=False):
+    '''
+    ro: remove overrides
+    '''
     errors = []
     if pc.mel.currentRenderer().lower() != 'redshift':
         pc.mel.setCurrentRenderer('redshift')
@@ -123,7 +128,10 @@ def setupScene(msg=True, cam=None, resolution=None):
     start = 0
     end = 1
     try:
-        start, end = fillinout.fill()
+        if ro:
+            start, end = fillinoutRO.fill()
+        else:
+            start, end = fillinout.fill()
     except:
         pc.warning('Could not find start and end frames for %s'%cam.name())
     pc.setAttr("defaultRenderGlobals.byFrameStep", 1)
