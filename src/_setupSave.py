@@ -99,6 +99,8 @@ def setupScene(msg=True, cam=None, resolution=None, ro=False):
     ro: remove overrides
     '''
     errors = []
+    if not pc.pluginInfo('redshift4maya', q=True, loaded=True):
+        pc.loadPlugin('redshift4maya')
     if pc.mel.currentRenderer().lower() != 'redshift':
         pc.mel.setCurrentRenderer('redshift')
     if not cam and msg:
